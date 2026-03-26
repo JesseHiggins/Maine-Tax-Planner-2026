@@ -426,7 +426,7 @@ return (
           <div style={{ fontSize: 11, color: C.textMuted, marginTop: 2 }}>Built with Claude AI (Anthropic) · 2026</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <a href="https://github.com/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: C.blue, textDecoration: "none", padding: "6px 12px", border: `1px solid ${C.border}`, borderRadius: 4 }}>GitHub</a>
+          <a href="https://github.com/JesseHiggins/Maine-Tax-Planner-2026" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: C.blue, textDecoration: "none", padding: "6px 12px", border: `1px solid ${C.border}`, borderRadius: 4 }}>GitHub</a>
           <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: C.blue, textDecoration: "none", padding: "6px 12px", border: `1px solid ${C.border}`, borderRadius: 4 }}>LinkedIn</a>
         </div>
       </div>
