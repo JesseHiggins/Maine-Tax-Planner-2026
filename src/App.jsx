@@ -207,7 +207,48 @@ white: "#FFFFFF", rule: "#D4D9E2",
 const font = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const mono = "'SF Mono', 'Fira Code', 'Consolas', monospace";
 
-const printCSS = ` @media print { body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .no-print { display: none !important; } } @media (max-width: 640px) { .grid-3 { grid-template-columns: 1fr !important; } .grid-2 { grid-template-columns: 1fr !important; } .flex-kpi { flex-direction: column !important; } }`;
+const printCSS = ` 
+/* Mobile & Safari Optimizations */
+@supports (-webkit-appearance: none) {
+  input[type="number"] { font-size: 16px !important; }
+  input { margin: 0; -webkit-appearance: none; appearance: none; border-radius: 4px; }
+  button { -webkit-appearance: none; appearance: none; }
+}
+
+/* Mobile Responsive (max-width: 768px) */
+@media (max-width: 768px) {
+  body { padding: 0; margin: 0; }
+  * { box-sizing: border-box; }
+  .grid-3 { grid-template-columns: 1fr !important; gap: 8px !important; }
+  .grid-2 { grid-template-columns: 1fr !important; gap: 8px !important; }
+  .flex-kpi { flex-direction: column !important; gap: 8px !important; }
+  .mobile-stack { flex-direction: column !important; }
+  .mobile-hide { display: none !important; }
+  .mobile-show { display: flex !important; }
+  input[type="number"] { font-size: 16px !important; padding: 10px 12px !important; }
+  button { padding: 12px 16px !important; font-size: 14px !important; min-height: 44px; min-width: 44px; }
+  input[type="text"], input[type="email"], select, textarea { font-size: 16px !important; padding: 12px !important; }
+}
+
+/* Tablet (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .grid-3 { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* Small devices (max-width: 480px) */
+@media (max-width: 480px) {
+  body { font-size: 14px; }
+  h1, .text-xl { font-size: 18px !important; }
+  h2, .text-lg { font-size: 16px !important; }
+  .no-mobile { display: none !important; }
+}
+
+/* Print Styles */
+@media print {
+  body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .no-print { display: none !important; }
+}
+`;
 
 const Card = ({ title, sub, children, noPad }) => (
 
@@ -225,33 +266,33 @@ const Card = ({ title, sub, children, noPad }) => (
 const Field = ({ label, tip, children }) => (
 
   <div style={{ marginBottom: 14 }}>
-    <div style={{ fontSize: 11, fontWeight: 600, color: C.textSec, marginBottom: 4, letterSpacing: "0.02em" }}>{label}</div>
-    {tip && <div style={{ fontSize: 10, color: C.textMuted, marginBottom: 4 }}>{tip}</div>}
+    <div style={{ fontSize: 12, fontWeight: 600, color: C.textSec, marginBottom: 6, letterSpacing: "0.02em" }}>{label}</div>
+    {tip && <div style={{ fontSize: 11, color: C.textMuted, marginBottom: 6 }}>{tip}</div>}
     {children}
   </div>
 );
 
-const inp = { padding: "8px 10px", background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, color: C.text, fontSize: 13, fontFamily: mono, outline: "none", transition: "border-color 0.15s" };
+const inp = { padding: "10px 12px", background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, color: C.text, fontSize: 14, fontFamily: mono, outline: "none", transition: "border-color 0.15s", minHeight: 40 };
 
 const Num = ({ val, set, pre="$", min=0, max, step=1, w=100 }) => (
 
-  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-    {pre && <span style={{ color: C.textMuted, fontSize: 12, fontFamily: mono }}>{pre}</span>}
+  <div style={{ display: "flex", alignItems: "center", gap: 4, minHeight: 44 }}>
+    {pre && <span style={{ color: C.textMuted, fontSize: 12, fontFamily: mono, lineHeight: 1 }}>{pre}</span>}
     <input type="number" value={val || ""} min={min} max={max} step={step}
       placeholder="0"
       onChange={e => set(e.target.value === "" ? 0 : +e.target.value)}
       onFocus={e => { e.target.style.borderColor = C.blue; if (val === 0) e.target.value = ""; }}
       onBlur={e => { e.target.style.borderColor = C.border; if (e.target.value === "") set(0); }}
-      style={{ ...inp, width: w }} />
+      style={{ ...inp, width: w, minHeight: 40, fontSize: '16px' }} />
   </div>
 );
 
 const Toggle = ({ options, val, set }) => (
 
-  <div style={{ display: "inline-flex", borderRadius: 4, overflow: "hidden", border: `1px solid ${C.border}` }}>
+  <div style={{ display: "inline-flex", borderRadius: 4, overflow: "hidden", border: `1px solid ${C.border}`, backgroundColor: C.white }}>
     {options.map((o, idx) => (
       <button key={o.v} onClick={() => set(o.v)} style={{
-        padding: "7px 18px", fontSize: 12, fontWeight: 600, cursor: "pointer",
+        padding: "10px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", minHeight: 44,
         background: val === o.v ? C.navy : C.white, color: val === o.v ? "#fff" : C.textSec,
         border: "none", borderRight: idx < options.length - 1 ? `1px solid ${C.border}` : "none",
         transition: "all 0.15s", fontFamily: font,
@@ -326,16 +367,16 @@ const tdr = { ...tds, textAlign: "right", fontFamily: mono, fontWeight: 500, col
 const thr = { ...tds, fontWeight: 700, color: C.navy, textAlign: "right", fontFamily: mono };
 
 return (
-<div style={{ fontFamily: font, maxWidth: 860, margin: "0 auto", padding: "0 24px 40px", background: C.bg, minHeight: "100vh", color: C.text }}>
+<div style={{ fontFamily: font, maxWidth: 860, margin: "0 auto", padding: "0 16px 40px", background: C.bg, minHeight: "100vh", color: C.text, WebkitFontSmoothing: 'antialiased' }}>
 <style>{printCSS}</style>
 
   {/* Header */}
-  <div style={{ padding: "28px 0 20px", borderBottom: `2px solid ${C.navy}`, marginBottom: 24, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+  <div style={{ padding: "20px 0 16px", borderBottom: `2px solid ${C.navy}`, marginBottom: 16, display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
     <div>
       <div style={{ fontSize: 10, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>Personal Tax Planning</div>
-      <div style={{ fontSize: 22, fontWeight: 700, color: C.navy, letterSpacing: "-0.01em" }}>Maine 2026 Tax Year</div>
+      <div style={{ fontSize: '18px', fontWeight: 700, color: C.navy, letterSpacing: "-0.01em" }}>Maine 2026 Tax Year</div>
     </div>
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 12 }}>
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
       {r && (
         <div style={{ textAlign: "right" }} className="no-print">
           <div style={{ fontSize: 10, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2 }}>Estimated Refund</div>
@@ -344,9 +385,9 @@ return (
       )}
       {r && (tab === "results" || tab === "breakdown" || tab === "compare") && (
         <button className="no-print" onClick={() => window.print()} style={{
-          padding: "8px 16px", background: C.white, color: C.navy, border: `1px solid ${C.border}`,
-          borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: font,
-          letterSpacing: "0.03em", display: "flex", alignItems: "center", gap: 6,
+          padding: "10px 16px", background: C.white, color: C.navy, border: `1px solid ${C.border}`,
+          borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: font,
+          letterSpacing: "0.03em", display: "flex", alignItems: "center", gap: 6, minHeight: 40,
         }}>
           <span style={{ fontSize: 14 }}>Print</span> Print
         </button>
@@ -355,21 +396,21 @@ return (
   </div>
 
   {/* Nav */}
-  <div className="no-print" style={{ display: "flex", gap: 0, marginBottom: 20, borderBottom: `1px solid ${C.border}` }}>
+  <div className="no-print" style={{ display: "flex", gap: 0, marginBottom: 16, borderBottom: `1px solid ${C.border}`, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: 'touch' }}>
     {tabs.map(t => (
       <button key={t.id} onClick={() => setTab(t.id)} style={{
-        padding: "10px 20px", fontSize: 12, fontWeight: 600, cursor: "pointer",
+        padding: "12px 14px", fontSize: '11px', fontWeight: 600, cursor: "pointer",
         letterSpacing: "0.04em", textTransform: "uppercase",
         background: "transparent", color: tab === t.id ? C.navy : C.textMuted,
         border: "none", borderBottom: tab === t.id ? `2px solid ${C.navy}` : "2px solid transparent",
-        marginBottom: -1, transition: "all 0.15s", fontFamily: font,
+        marginBottom: -1, transition: "all 0.15s", fontFamily: font, minHeight: 44, whiteSpace: 'nowrap',
       }}>{t.label}</button>
     ))}
     <div style={{ flex: 1 }} />
     <button className="no-print" onClick={() => { setI(blank); setScenA(null); setScenB(null); }} style={{
-      padding: "6px 14px", fontSize: 10, fontWeight: 600, cursor: "pointer",
+      padding: "8px 12px", fontSize: 10, fontWeight: 600, cursor: "pointer",
       background: "transparent", color: C.textMuted, border: `1px solid ${C.border}`,
-      borderRadius: 4, fontFamily: font, letterSpacing: "0.03em",
+      borderRadius: 4, fontFamily: font, letterSpacing: "0.03em", minHeight: 44, flexShrink: 0,
     }}>Reset</button>
   </div>
 
@@ -397,8 +438,8 @@ return (
           Designed and developed using Claude AI to solve a real problem -- helping Maine workers navigate federal and state tax optimization.
         </div>
         <button className="no-print" onClick={() => setTab("input")} style={{
-          marginTop: 24, padding: "12px 40px", background: C.navy, color: "#fff", border: "none", borderRadius: 4,
-          fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", fontFamily: font,
+          marginTop: 24, padding: "14px 40px", background: C.navy, color: "#fff", border: "none", borderRadius: 4,
+          fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", fontFamily: font, minHeight: 48,
         }}>Try the Planner  --</button>
       </div>
 
