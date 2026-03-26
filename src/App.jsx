@@ -396,21 +396,22 @@ return (
   </div>
 
   {/* Nav */}
-  <div className="no-print" style={{ display: "flex", gap: 0, marginBottom: 16, borderBottom: `1px solid ${C.border}`, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: 'touch' }}>
-    {tabs.map(t => (
-      <button key={t.id} onClick={() => setTab(t.id)} style={{
-        padding: "12px 14px", fontSize: '11px', fontWeight: 600, cursor: "pointer",
-        letterSpacing: "0.04em", textTransform: "uppercase",
-        background: "transparent", color: tab === t.id ? C.navy : C.textMuted,
-        border: "none", borderBottom: tab === t.id ? `2px solid ${C.navy}` : "2px solid transparent",
-        marginBottom: -1, transition: "all 0.15s", fontFamily: font, minHeight: 44, whiteSpace: 'nowrap',
-      }}>{t.label}</button>
-    ))}
-    <div style={{ flex: 1 }} />
+  <div className="no-print" style={{ display: "flex", gap: 8, marginBottom: 16, borderBottom: `1px solid ${C.border}`, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: 'touch', alignItems: "stretch", paddingBottom: 0 }}>
+    <div style={{ display: "flex", gap: 0, flex: 1, minWidth: 0 }}>
+      {tabs.map(t => (
+        <button key={t.id} onClick={() => setTab(t.id)} style={{
+          padding: "10px 12px", fontSize: '10px', fontWeight: 600, cursor: "pointer",
+          letterSpacing: "0.03em", textTransform: "uppercase",
+          background: "transparent", color: tab === t.id ? C.navy : C.textMuted,
+          border: "none", borderBottom: tab === t.id ? `3px solid ${C.navy}` : "3px solid transparent",
+          transition: "all 0.15s", fontFamily: font, minHeight: 44, whiteSpace: 'nowrap', flex: "0 0 auto",
+        }}>{t.label}</button>
+      ))}
+    </div>
     <button className="no-print" onClick={() => { setI(blank); setScenA(null); setScenB(null); }} style={{
-      padding: "8px 12px", fontSize: 10, fontWeight: 600, cursor: "pointer",
+      padding: "8px 10px", fontSize: '10px', fontWeight: 600, cursor: "pointer",
       background: "transparent", color: C.textMuted, border: `1px solid ${C.border}`,
-      borderRadius: 4, fontFamily: font, letterSpacing: "0.03em", minHeight: 44, flexShrink: 0,
+      borderRadius: 4, fontFamily: font, letterSpacing: "0.03em", minHeight: 44, flexShrink: 0, whiteSpace: 'nowrap',
     }}>Reset</button>
   </div>
 
