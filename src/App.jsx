@@ -541,11 +541,11 @@ return (
         </div>
         <div style={{ display: "flex", gap: 16, marginTop: 8, flexWrap: "wrap" }}>
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textSec, cursor: "pointer" }}>
-            <input type="checkbox" checked={i.age65} onChange={e => u("age65")(e.target.checked)} style={{ accentColor: C.navy, width: 14, height: 14 }} /> Taxpayer age 65+
+            <input type="checkbox" checked={i.age65} onChange={e => u("age65")(e.target.checked)} style={{ accentColor: C.navy, width: 14, height: 14, flexShrink: 0 }} /> Taxpayer age 65+
           </label>
           {i.filingStatus === "MFJ" && (
             <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textSec, cursor: "pointer" }}>
-              <input type="checkbox" checked={i.spouseAge65} onChange={e => u("spouseAge65")(e.target.checked)} style={{ accentColor: C.navy, width: 14, height: 14 }} /> Spouse age 65+
+              <input type="checkbox" checked={i.spouseAge65} onChange={e => u("spouseAge65")(e.target.checked)} style={{ accentColor: C.navy, width: 14, height: 14, flexShrink: 0 }} /> Spouse age 65+
             </label>
           )}
         </div>
@@ -610,7 +610,7 @@ return (
         </div>
         <div style={{ marginTop: 10 }}>
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textSec, cursor: "pointer", marginBottom: 10 }}>
-            <input type="checkbox" checked={i.hsaEligible} onChange={e => u("hsaEligible")(e.target.checked)} style={{ accentColor: C.navy, width: 14, height: 14 }} /> HSA-eligible plan
+            <input type="checkbox" checked={i.hsaEligible} onChange={e => u("hsaEligible")(e.target.checked)} style={{ accentColor: C.navy, width: 14, height: 14, flexShrink: 0 }} /> HSA-eligible plan
           </label>
           {i.hsaEligible && (
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", paddingLeft: 2 }}>
