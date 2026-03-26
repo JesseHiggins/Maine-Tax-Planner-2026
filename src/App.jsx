@@ -329,19 +329,19 @@ return (
 export default function App() {
 const [i, setI] = useState({
 filingStatus: "MFJ", payType: "hourly",
-hourlyRate: 28, hoursPerWeek: 40, otHours: 4, salary: 0,
-numKidsUnder17: 1, numKidsUnder6: 1, age65: false, spouseAge65: false,
-numKidsUnder13: 1, childcareExpenses: 0, annualTips: 0,
-spouseIncome: 32000, spouseTrad401kPct: 0, spouseRetire: 0,
-otherIncome: 500,
-housingType: "rent", monthlyHousing: 1400, rentIncHeat: true, annualPropTax: 0,
-monthlyExpenses: 3800,
-slInterest: 1800, slPayments: 2200,
-trad401kPct: 3, roth401kPct: 2,
-hsaEligible: true, hsaTier: "family", hsaContrib: 2000,
-healthPremium: 85,
-weeklyAfterTax: 4.50,
-pfmlWeeks: 4,
+hourlyRate: 0, hoursPerWeek: 40, otHours: 0, salary: 0,
+numKidsUnder17: 0, numKidsUnder6: 0, age65: false, spouseAge65: false,
+numKidsUnder13: 0, childcareExpenses: 0, annualTips: 0,
+spouseIncome: 0, spouseTrad401kPct: 0, spouseRetire: 0,
+otherIncome: 0,
+housingType: "rent", monthlyHousing: 0, rentIncHeat: true, annualPropTax: 0,
+monthlyExpenses: 0,
+slInterest: 0, slPayments: 0,
+trad401kPct: 0, roth401kPct: 0,
+hsaEligible: false, hsaTier: "self", hsaContrib: 0,
+healthPremium: 0,
+weeklyAfterTax: 0,
+pfmlWeeks: 0,
 });
 const [tab, setTab] = useState("about");
 const [scenA, setScenA] = useState(null);
@@ -422,7 +422,9 @@ return (
       {/* Author */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, padding: "12px 16px", background: C.white, borderRadius: 4, border: `1px solid ${C.border}` }}>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: C.navy }}>Jesse · Bath/Brunswick, Maine</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.navy }}>Jesse M. Higgins · Bath/Brunswick, Maine</div>
+          <div style={{ fontSize: 11, color: C.textMuted, marginTop: 2 }}>Financial Analyst at General Dynamics Bath Iron Works</div>
+          <div style={{ fontSize: 11, color: C.textMuted, marginTop: 1 }}>Pursuing MS Computer Science at Northeastern University</div>
           <div style={{ fontSize: 11, color: C.textMuted, marginTop: 2 }}>Built with Claude AI (Anthropic) · 2026</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
