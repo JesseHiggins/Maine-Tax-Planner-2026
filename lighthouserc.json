@@ -1,0 +1,19 @@
+{
+  "extends": "lighthouse:default",
+  "settings": {
+    "formFactor": "mobile",
+    "throttling": {
+      "rttMs": 40,
+      "throughputKbps": 10240,
+      "cpuSlowdownMultiplier": 1
+    },
+    "skipAudits": ["installable-manifest"]
+  },
+  "audits": {
+    "largest-contentful-paint": {
+      "options": {
+        "strategy": "mobile"
+      }
+    }
+  }
+}
