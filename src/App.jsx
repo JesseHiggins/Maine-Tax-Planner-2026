@@ -389,15 +389,15 @@ return (
           borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: font,
           letterSpacing: "0.03em", display: "flex", alignItems: "center", gap: 6, minHeight: 40,
         }}>
-          <span style={{ fontSize: 14 }}>Print</span> Print
+          Print
         </button>
       )}
     </div>
   </div>
 
   {/* Nav */}
-  <div className="no-print" style={{ display: "flex", gap: 8, marginBottom: 16, borderBottom: `1px solid ${C.border}`, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: 'touch', alignItems: "stretch", paddingBottom: 0 }}>
-    <div style={{ display: "flex", gap: 0, flex: 1, minWidth: 0 }}>
+  <div className="no-print" style={{ display: "flex", gap: 8, marginBottom: 16, borderBottom: `1px solid ${C.border}`, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: 'touch', alignItems: "stretch" }}>
+    <div style={{ display: "flex", gap: 0, overflowX: "auto", WebkitOverflowScrolling: 'touch' }}>
       {tabs.map(t => (
         <button key={t.id} onClick={() => setTab(t.id)} style={{
           padding: "10px 12px", fontSize: '10px', fontWeight: 600, cursor: "pointer",
@@ -408,6 +408,7 @@ return (
         }}>{t.label}</button>
       ))}
     </div>
+    <div style={{ flex: 1, minWidth: 8 }} />
     <button className="no-print" onClick={() => { setI(blank); setScenA(null); setScenB(null); }} style={{
       padding: "8px 10px", fontSize: '10px', fontWeight: 600, cursor: "pointer",
       background: "transparent", color: C.textMuted, border: `1px solid ${C.border}`,
