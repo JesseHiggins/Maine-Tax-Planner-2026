@@ -484,8 +484,9 @@ return (
             { step: "Architecture", desc: "Collaborated with Claude AI to design a pure-JavaScript tax engine handling progressive brackets, credit phase-outs, and benefit calculations with no external dependencies." },
             { step: "Interface", desc: "Iteratively designed a responsive React application with real-time calculations, visual allocation breakdowns, and contextual optimization insights." },
             { step: "Validation", desc: "Cross-referenced outputs against manual calculations and published tax tables to verify accuracy across filing statuses and income levels." },
+            { step: "DevOps", desc: "Developed entirely in GitHub Codespaces with Claude AI as development partner. Built with Vite for fast development and optimized production bundles. Version controlled with Git, deployed to Vercel with automatic HTTPS, global CDN, and zero-config deployment." },
           ].map((s, idx) => (
-            <div key={idx} style={{ display: "flex", gap: 14, padding: "10px 0", borderBottom: idx < 3 ? `1px solid ${C.borderLight}` : "none" }}>
+            <div key={idx} style={{ display: "flex", gap: 14, padding: "10px 0", borderBottom: idx < 4 ? `1px solid ${C.borderLight}` : "none" }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: C.blue, minWidth: 80, textTransform: "uppercase", letterSpacing: "0.04em", paddingTop: 1 }}>{s.step}</div>
               <div style={{ fontSize: 12, color: C.textSec, lineHeight: 1.7 }}>{s.desc}</div>
             </div>
@@ -496,7 +497,8 @@ return (
       <div className="grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <Card title="Technology">
           <div style={{ fontSize: 12, color: C.textSec, lineHeight: 1.8 }}>
-            React · JavaScript · Vite · Claude AI (Anthropic)
+            React · JavaScript · Vite · Claude AI
+            <br />GitHub · Codespaces · Vercel
             <br />No backend required -- all calculations run client-side.
           </div>
         </Card>
