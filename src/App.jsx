@@ -18,7 +18,7 @@ const SAV = { MFJ:[48500,52500,80500], S:[24250,26250,40250], HOH:[36375,39375,6
 const HSA_L = { self: 4400, family: 8750 };
 const SAWW = 1198.84;
 
-// EITC 2026 — Rev Proc 2025-32 (verified)
+// EITC 2026 -- Rev Proc 2025-32 (verified)
 // [phaseInRate, maxCredit, earnedIncForMax, phaseOutStart_S, phaseOutStart_MFJ, phaseOutRate]
 const EITC_T = [
 [0.0765,   664,  8680, 10860, 18140, 0.0765],  // 0 kids
@@ -44,12 +44,12 @@ function pfmlB(wg) {
 return Math.min(SAWW, .9 * SAWW * .5 + .66 * Math.max(0, wg - SAWW * .5));
 }
 function stfcCalc(ln9, kids, fs) {
-if (fs === “S”) { if (ln9 <= 24750) return 150; const s = Math.floor((ln9-24750)/500); return Math.max(0, 150-(s+1)*10); }
+if (fs === "S") { if (ln9 <= 24750) return 150; const s = Math.floor((ln9-24750)/500); return Math.max(0, 150-(s+1)*10); }
 const col = kids >= 2 ? 2 : kids >= 1 ? 1 : 0;
-const base = fs === “HOH” ? 37100 : 49500;
-const step = fs === “HOH” ? 750 : 1000;
+const base = fs === "HOH" ? 37100 : 49500;
+const step = fs === "HOH" ? 750 : 1000;
 const mx = [210,240,270][col];
-const dec = fs === “HOH” ? 15 : 20;
+const dec = fs === "HOH" ? 15 : 20;
 if (ln9 <= base) return mx;
 const s = Math.floor((ln9 - base) / step);
 return Math.max(0, mx - (s+1) * dec);
@@ -57,7 +57,7 @@ return Math.max(0, mx - (s+1) * dec);
 function calcEitc(earnedInc, agi, kids, fs) {
 const row = EITC_T[Math.min(kids, 3)];
 const [piRate, maxCr, , poS, poMFJ, poRate] = row;
-const poStart = fs === “MFJ” ? poMFJ : poS;
+const poStart = fs === "MFJ" ? poMFJ : poS;
 const credit = Math.min(Math.round(earnedInc * piRate), maxCr);
 const poIncome = Math.max(earnedInc, agi);
 if (poIncome <= poStart) return credit;
@@ -67,7 +67,7 @@ return Math.max(0, credit - Math.round((poIncome - poStart) * poRate));
 function calcCDCTC(agi, expenses, fs) {
 if (expenses <= 0) return 0;
 let pct;
-if (fs === “MFJ”) {
+if (fs === "MFJ") {
 if (agi <= 15000) pct = 50;
 else if (agi <= 43000) pct = 50 - Math.ceil((agi - 15000) / 2000);
 else if (agi <= 150000) pct = 35;
@@ -84,17 +84,17 @@ pct = Math.max(20, Math.min(50, pct));
 return Math.round(expenses * pct / 100);
 }
 
-const f$ = n => { const a = Math.abs(Math.round(n)); return (n<0?”–”:””)+”$”+a.toLocaleString(); };
-const fp = n => Math.round(n*100)+”%”;
+const f$ = n => { const a = Math.abs(Math.round(n)); return (n<0?"-":"")+"$"+a.toLocaleString(); };
+const fp = n => Math.round(n*100)+"%";
 
 function calc(i) {
 const fs = i.filingStatus, fed = FED[fs], me = ME[fs];
-const wg = i.payType === “hourly” ? i.hourlyRate * i.hoursPerWeek + (i.otHours||0) * i.hourlyRate * 1.5 : i.salary / 52;
+const wg = i.payType === "hourly" ? i.hourlyRate * i.hoursPerWeek + (i.otHours||0) * i.hourlyRate * 1.5 : i.salary / 52;
 const ww = 52 - (i.pfmlWeeks||0);
 const ag = wg * ww, ap = i.pfmlWeeks > 0 ? pfmlB(wg) * i.pfmlWeeks : 0;
 const hp = (i.healthPremium||0) * 52;
 const t4 = ag * (i.trad401kPct||0)/100, r4 = ag * (i.roth401kPct||0)/100;
-const hl = i.hsaEligible ? HSA_L[i.hsaTier||“self”] : 0;
+const hl = i.hsaEligible ? HSA_L[i.hsaTier||"self"] : 0;
 const hc = Math.min(i.hsaContrib||0, hl);
 const w2 = ag - hp - t4 - hc;
 const si = i.spouseIncome||0, spt = si * (i.spouseTrad401kPct||0)/100;
@@ -103,19 +103,19 @@ const sli = Math.min(i.slInterest||0, 2500);
 const agi = ln9 - sli;
 
 // OBBBA Overtime Deduction (2025-2028): deductible = the 0.5x premium portion
-const otPremium = i.payType === “hourly” ? (i.otHours||0) * i.hourlyRate * 0.5 * ww : 0;
-const otDedCap = fs === “MFJ” ? 25000 : 12500;
-const otMagiTh = fs === “MFJ” ? 300000 : 150000;
+const otPremium = i.payType === "hourly" ? (i.otHours||0) * i.hourlyRate * 0.5 * ww : 0;
+const otDedCap = fs === "MFJ" ? 25000 : 12500;
+const otMagiTh = fs === "MFJ" ? 300000 : 150000;
 const otDed = agi > otMagiTh ? 0 : Math.min(Math.round(otPremium), otDedCap);
 
 // OBBBA Tip Deduction (2025-2028)
-const tipDedCap = fs === “MFJ” ? 50000 : 25000;
-const tipMagiTh = fs === “MFJ” ? 300000 : 150000;
+const tipDedCap = fs === "MFJ" ? 50000 : 25000;
+const tipMagiTh = fs === "MFJ" ? 300000 : 150000;
 const tipDed = agi > tipMagiTh ? 0 : Math.min(i.annualTips||0, tipDedCap);
 
 // OBBBA Senior Deduction (2025-2028): $6,000 per person 65+, 6% phase-out
 const seniorTh = SENIOR_PO[fs] || 75000;
-const seniorCount = i.age65 ? (fs === “MFJ” ? (i.spouseAge65 ? 2 : 1) : 1) : 0;
+const seniorCount = i.age65 ? (fs === "MFJ" ? (i.spouseAge65 ? 2 : 1) : 1) : 0;
 let seniorDed = seniorCount * SENIOR_DED;
 if (agi > seniorTh && seniorDed > 0) {
 seniorDed = Math.max(0, seniorDed - Math.round((agi - seniorTh) * 0.06));
@@ -131,8 +131,8 @@ const jq = Math.min(t4+r4, 2000), sq = Math.min(i.spouseRetire||0, 2000);
 const sr = sRate(agi, fs), sm = Math.round((jq+sq)*sr), su = Math.min(sm, aCTC);
 const nf = Math.max(0, aCTC - su);
 
-// EITC — federal (earned income = gross wages, full OT included)
-const eitcEI = ag + (si > 0 ? si : 0); // both spouses’ earned income for MFJ
+// EITC -- federal (earned income = gross wages, full OT included)
+const eitcEI = ag + (si > 0 ? si : 0); // both spouses' earned income for MFJ
 const invInc = i.otherIncome || 0; // simplified: treat other income as investment for EITC limit
 const eitc = invInc > EITC_INV_LIMIT ? 0 : calcEitc(eitcEI, agi, nk, fs);
 // Maine EITC: 25% of federal EITC (with kids), 50% (without kids), refundable
@@ -147,18 +147,18 @@ const cdctc = Math.min(cdctcGross, nf); // nonrefundable: limited to tax liabili
 const fb = ag - hp - hc;
 const mf = fb * .0765, sf = si * .0765;
 const mi = ln9 - ap, ma = mi - sli;
-const ne = fs === “MFJ” ? 2 : 1;
+const ne = fs === "MFJ" ? 2 : 1;
 const mti = Math.max(0, ma - me.std - me.exe * ne);
 const mg = ptax(mti, me.bk);
-const rent = i.housingType === “rent” ? (i.monthlyHousing||0)*12 : 0;
-const pt = i.housingType === “own” ? (i.annualPropTax||0) : 0;
-const ht = i.housingType === “rent” && i.rentIncHeat ? rent*.15 : 0;
-const pb = i.housingType === “rent” ? (rent-ht)*.15 : pt;
+const rent = i.housingType === "rent" ? (i.monthlyHousing||0)*12 : 0;
+const pt = i.housingType === "own" ? (i.annualPropTax||0) : 0;
+const ht = i.housingType === "rent" && i.rentIncHeat ? rent*.15 : 0;
+const pb = i.housingType === "rent" ? (rent-ht)*.15 : pt;
 const pc = Math.min(i.age65?2000:1000, Math.round(Math.max(0, pb - ln9*.04)));
 const sc = stfcCalc(ln9, nk, fs);
 const sl = Math.min(i.slPayments||0, 2500);
 const nDeps = i.numKidsUnder17||0;
-const dc = nDeps * 300; // Maine §5219-SS: $300/dependent for 2026
+const dc = nDeps * 300; // Maine 5219-SS: $300/dependent for 2026
 
 // Maine net: credits minus gross tax (includes Maine EITC)
 const mn = sl + dc + pc + sc + meEitc - mg;
@@ -193,19 +193,19 @@ pfmlBen: i.pfmlWeeks > 0 ? pfmlB(wg) : 0,
 // McKINSEY DESIGN SYSTEM
 // ============================================================
 const C = {
-bg: “#F7F8FA”, card: “#FFFFFF”, cardAlt: “#F2F4F8”,
-border: “#E2E6ED”, borderLight: “#EEF0F4”,
-text: “#1A1F36”, textSec: “#525F7F”, textMuted: “#8898AA”,
-navy: “#051C2C”, navyLight: “#0B3654”,
-blue: “#027BBD”, bluePale: “#EBF5FB”,
-green: “#0D7A3E”, greenPale: “#E8F5EE”,
-red: “#C4291C”, redPale: “#FDECEB”,
-amber: “#B45309”, amberPale: “#FEF7E6”,
-white: “#FFFFFF”, rule: “#D4D9E2”,
+bg: "#F7F8FA", card: "#FFFFFF", cardAlt: "#F2F4F8",
+border: "#E2E6ED", borderLight: "#EEF0F4",
+text: "#1A1F36", textSec: "#525F7F", textMuted: "#8898AA",
+navy: "#051C2C", navyLight: "#0B3654",
+blue: "#027BBD", bluePale: "#EBF5FB",
+green: "#0D7A3E", greenPale: "#E8F5EE",
+red: "#C4291C", redPale: "#FDECEB",
+amber: "#B45309", amberPale: "#FEF7E6",
+white: "#FFFFFF", rule: "#D4D9E2",
 };
 
-const font = “‘Inter’, -apple-system, BlinkMacSystemFont, ‘Segoe UI’, sans-serif”;
-const mono = “‘SF Mono’, ‘Fira Code’, ‘Consolas’, monospace”;
+const font = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const mono = "'SF Mono', 'Fira Code', 'Consolas', monospace";
 
 const printCSS = ` @media print { body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .no-print { display: none !important; } } @media (max-width: 640px) { .grid-3 { grid-template-columns: 1fr !important; } .grid-2 { grid-template-columns: 1fr !important; } .flex-kpi { flex-direction: column !important; } }`;
 
@@ -231,9 +231,9 @@ const Field = ({ label, tip, children }) => (
   </div>
 );
 
-const inp = { padding: “8px 10px”, background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, color: C.text, fontSize: 13, fontFamily: mono, outline: “none”, transition: “border-color 0.15s” };
+const inp = { padding: "8px 10px", background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, color: C.text, fontSize: 13, fontFamily: mono, outline: "none", transition: "border-color 0.15s" };
 
-const Num = ({ val, set, pre=”$”, min=0, max, step=1, w=100 }) => (
+const Num = ({ val, set, pre="$", min=0, max, step=1, w=100 }) => (
 
   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
     {pre && <span style={{ color: C.textMuted, fontSize: 12, fontFamily: mono }}>{pre}</span>}
@@ -272,12 +272,12 @@ const KPI = ({ label, val, sub, color, accent }) => (
 const HBar = ({ label, val, max, color = C.blue }) => {
 const p = max > 0 ? Math.min(100, Math.round(val / max * 100)) : 0;
 return (
-<div style={{ display: “flex”, alignItems: “center”, gap: 12, marginBottom: 10 }}>
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
 <div style={{ width: 140, fontSize: 12, color: C.textSec, flexShrink: 0 }}>{label}</div>
-<div style={{ flex: 1, height: 8, background: C.cardAlt, borderRadius: 2, overflow: “hidden” }}>
-<div style={{ height: 8, background: color, borderRadius: 2, width: p+”%”, transition: “width 0.4s ease” }} />
+<div style={{ flex: 1, height: 8, background: C.cardAlt, borderRadius: 2, overflow: "hidden" }}>
+<div style={{ height: 8, background: color, borderRadius: 2, width: p+"%", transition: "width 0.4s ease" }} />
 </div>
-<div style={{ width: 80, textAlign: “right”, fontSize: 13, fontWeight: 600, color: C.text, fontFamily: mono, flexShrink: 0 }}>{f$(val)}</div>
+<div style={{ width: 80, textAlign: "right", fontSize: 13, fontWeight: 600, color: C.text, fontFamily: mono, flexShrink: 0 }}>{f$(val)}</div>
 </div>
 );
 };
@@ -287,49 +287,48 @@ return (
 // ============================================================
 export default function App() {
 const [i, setI] = useState({
-filingStatus: “MFJ”, payType: “hourly”,
+filingStatus: "MFJ", payType: "hourly",
 hourlyRate: 28, hoursPerWeek: 40, otHours: 4, salary: 0,
 numKidsUnder17: 1, numKidsUnder6: 1, age65: false, spouseAge65: false,
 numKidsUnder13: 1, childcareExpenses: 0, annualTips: 0,
 spouseIncome: 32000, spouseTrad401kPct: 0, spouseRetire: 0,
 otherIncome: 500,
-housingType: “rent”, monthlyHousing: 1400, rentIncHeat: true, annualPropTax: 0,
+housingType: "rent", monthlyHousing: 1400, rentIncHeat: true, annualPropTax: 0,
 monthlyExpenses: 3800,
 slInterest: 1800, slPayments: 2200,
 trad401kPct: 3, roth401kPct: 2,
-hsaEligible: true, hsaTier: “family”, hsaContrib: 2000,
+hsaEligible: true, hsaTier: "family", hsaContrib: 2000,
 healthPremium: 85,
 weeklyAfterTax: 4.50,
 pfmlWeeks: 4,
 });
-const [tab, setTab] = useState(“about”);
+const [tab, setTab] = useState("about");
 const [scenA, setScenA] = useState(null);
 const [scenB, setScenB] = useState(null);
 
-const u = k => v => setI(p => ({ …p, [k]: v }));
-const hasInc = i.payType === “hourly” ? i.hourlyRate > 0 : i.salary > 0;
+const u = k => v => setI(p => ({ ...p, [k]: v }));
+const hasInc = i.payType === "hourly" ? i.hourlyRate > 0 : i.salary > 0;
 const r = hasInc ? calc(i) : null;
 
-const blank = { filingStatus:“MFJ”,payType:“hourly”,hourlyRate:0,hoursPerWeek:40,otHours:0,salary:0,numKidsUnder17:0,numKidsUnder6:0,age65:false,spouseAge65:false,numKidsUnder13:0,childcareExpenses:0,annualTips:0,spouseIncome:0,spouseTrad401kPct:0,spouseRetire:0,otherIncome:0,housingType:“rent”,monthlyHousing:0,rentIncHeat:true,annualPropTax:0,monthlyExpenses:0,slInterest:0,slPayments:0,trad401kPct:0,roth401kPct:0,hsaEligible:false,hsaTier:“self”,hsaContrib:0,healthPremium:0,weeklyAfterTax:0,pfmlWeeks:0 };
+const blank = { filingStatus:"MFJ",payType:"hourly",hourlyRate:0,hoursPerWeek:40,otHours:0,salary:0,numKidsUnder17:0,numKidsUnder6:0,age65:false,spouseAge65:false,numKidsUnder13:0,childcareExpenses:0,annualTips:0,spouseIncome:0,spouseTrad401kPct:0,spouseRetire:0,otherIncome:0,housingType:"rent",monthlyHousing:0,rentIncHeat:true,annualPropTax:0,monthlyExpenses:0,slInterest:0,slPayments:0,trad401kPct:0,roth401kPct:0,hsaEligible:false,hsaTier:"self",hsaContrib:0,healthPremium:0,weeklyAfterTax:0,pfmlWeeks:0 };
 
 const tabs = [
-{ id: “about”, label: “About” },
-{ id: “input”, label: “Inputs” },
-{ id: “results”, label: “Overview” },
-{ id: “breakdown”, label: “Detail” },
-{ id: “compare”, label: “Compare” },
-{ id: “advisor”, label: “Advisor” },
+{ id: "about", label: "About" },
+{ id: "input", label: "Inputs" },
+{ id: "results", label: "Overview" },
+{ id: "breakdown", label: "Detail" },
+{ id: "compare", label: "Compare" },
+{ id: "advisor", label: "Advisor" },
 ];
 
-const tds = { padding: “10px 20px”, fontSize: 13, borderBottom: `1px solid ${C.borderLight}`, color: C.textSec };
-const tdr = { …tds, textAlign: “right”, fontFamily: mono, fontWeight: 500, color: C.text };
-const thr = { …tds, fontWeight: 700, color: C.navy, textAlign: “right”, fontFamily: mono };
+const tds = { padding: "10px 20px", fontSize: 13, borderBottom: `1px solid ${C.borderLight}`, color: C.textSec };
+const tdr = { ...tds, textAlign: "right", fontFamily: mono, fontWeight: 500, color: C.text };
+const thr = { ...tds, fontWeight: 700, color: C.navy, textAlign: "right", fontFamily: mono };
 
 return (
-<div style={{ fontFamily: font, maxWidth: 860, margin: “0 auto”, padding: “0 24px 40px”, background: C.bg, minHeight: “100vh”, color: C.text }}>
+<div style={{ fontFamily: font, maxWidth: 860, margin: "0 auto", padding: "0 24px 40px", background: C.bg, minHeight: "100vh", color: C.text }}>
 <style>{printCSS}</style>
 
-```
   {/* Header */}
   <div style={{ padding: "28px 0 20px", borderBottom: `2px solid ${C.navy}`, marginBottom: 24, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
     <div>
@@ -349,7 +348,7 @@ return (
           borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: font,
           letterSpacing: "0.03em", display: "flex", alignItems: "center", gap: 6,
         }}>
-          <span style={{ fontSize: 14 }}>⎙</span> Print
+          <span style={{ fontSize: 14 }}>Print</span> Print
         </button>
       )}
     </div>
@@ -395,18 +394,18 @@ return (
           A Maine-Specific Tax Planning Engine Built with AI
         </div>
         <div style={{ fontSize: 14, color: C.textSec, marginTop: 12, maxWidth: 480, margin: "12px auto 0", lineHeight: 1.7 }}>
-          Designed and developed using Claude AI to solve a real problem — helping Maine workers navigate federal and state tax optimization.
+          Designed and developed using Claude AI to solve a real problem -- helping Maine workers navigate federal and state tax optimization.
         </div>
         <button className="no-print" onClick={() => setTab("input")} style={{
           marginTop: 24, padding: "12px 40px", background: C.navy, color: "#fff", border: "none", borderRadius: 4,
           fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", fontFamily: font,
-        }}>Try the Planner →</button>
+        }}>Try the Planner  --</button>
       </div>
 
       <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
         {[
           { num: "01", title: "The Problem", body: "Maine residents face a complex intersection of federal brackets, state credits, PFML benefits, and retirement optimization. Existing tools don't account for Maine-specific provisions like the Student Loan Repayment Credit or Sales Tax Fairness Credit." },
-          { num: "02", title: "The Approach", body: "Used Claude AI as a collaborative development partner to architect a complete 2026 tax engine — from IRS revenue procedures and Maine tax law through to an interactive planning interface. Every bracket, credit, and phase-out is sourced from published guidance." },
+          { num: "02", title: "The Approach", body: "Used Claude AI as a collaborative development partner to architect a complete 2026 tax engine -- from IRS revenue procedures and Maine tax law through to an interactive planning interface. Every bracket, credit, and phase-out is sourced from published guidance." },
           { num: "03", title: "The Result", body: "A working application that calculates federal, FICA, and Maine taxes in real time, surfaces actionable insights on credit eligibility and retirement trade-offs, and provides a scenario comparison tool for decision-making." },
         ].map(c => (
           <div key={c.num} style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, padding: "20px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
@@ -455,17 +454,17 @@ return (
         <Card title="Technology">
           <div style={{ fontSize: 12, color: C.textSec, lineHeight: 1.8 }}>
             React · JavaScript · Vite · Claude AI (Anthropic)
-            <br />No backend required — all calculations run client-side.
+            <br />No backend required -- all calculations run client-side.
           </div>
         </Card>
         <Card title="Source Authority">
           <div style={{ fontSize: 12, color: C.textSec, lineHeight: 1.8 }}>
             IRS Revenue Procedure 2025-32
             <br />IRS Notice 2025-67 (CTC/ACTC)
-            <br />OBBBA §§ 70101–70412 (brackets, OT, tips, senior, CDCTC)
-            <br />Maine Revenue Services — 2026 Tax Year
-            <br />36 M.R.S. §5219-SS (dependent credit)
-            <br />26 M.R.S. § 850-L (PFML exemption)
+            <br />OBBBA  70101-70412 (brackets, OT, tips, senior, CDCTC)
+            <br />Maine Revenue Services -- 2026 Tax Year
+            <br />36 M.R.S. 5219-SS (dependent credit)
+            <br />26 M.R.S.  850-L (PFML exemption)
           </div>
         </Card>
       </div>
@@ -474,7 +473,7 @@ return (
         <button onClick={() => setTab("input")} style={{
           padding: "12px 48px", background: C.navy, color: "#fff", border: "none", borderRadius: 4,
           fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", fontFamily: font,
-        }}>Get Started →</button>
+        }}>Get Started  --</button>
       </div>
     </div>
   )}
@@ -485,7 +484,7 @@ return (
       <Card title="Filing Status">
         <Toggle options={[{v:"S",l:"Single"},{v:"MFJ",l:"Married Filing Jointly"},{v:"HOH",l:"Head of Household"}]} val={i.filingStatus} set={u("filingStatus")} />
         <div style={{ display: "flex", gap: 20, marginTop: 16, flexWrap: "wrap" }}>
-          <Field label="Dependents under 17" tip="Child Tax Credit — $2,200 each"><Num val={i.numKidsUnder17} set={u("numKidsUnder17")} pre="" w={56} max={10} /></Field>
+          <Field label="Dependents under 17" tip="Child Tax Credit -- $2,200 each"><Num val={i.numKidsUnder17} set={u("numKidsUnder17")} pre="" w={56} max={10} /></Field>
           <Field label="Dependents under 13" tip="Child & Dependent Care Credit"><Num val={i.numKidsUnder13} set={u("numKidsUnder13")} pre="" w={56} max={10} /></Field>
         </div>
         <div style={{ display: "flex", gap: 16, marginTop: 8, flexWrap: "wrap" }}>
@@ -508,7 +507,7 @@ return (
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             <Field label="Hourly Rate"><Num val={i.hourlyRate} set={u("hourlyRate")} step={0.25} /></Field>
             <Field label="Hours per Week"><Num val={i.hoursPerWeek} set={u("hoursPerWeek")} pre="" w={56} /></Field>
-            <Field label="Avg. OT per Week" tip="At 1.5× rate — premium portion deductible under OBBBA"><Num val={i.otHours} set={u("otHours")} pre="" w={56} step={0.5} /></Field>
+            <Field label="Avg. OT per Week" tip="At 1.5x rate -- premium portion deductible under OBBBA"><Num val={i.otHours} set={u("otHours")} pre="" w={56} step={0.5} /></Field>
           </div>
         ) : (
           <Field label="Annual Salary"><Num val={i.salary} set={u("salary")} w={130} /></Field>
@@ -521,13 +520,13 @@ return (
         <Field label="Other Annual Income" tip="Interest, dividends, side income">
           <Num val={i.otherIncome} set={u("otherIncome")} w={130} />
         </Field>
-        <Field label="Annual Tip Income" tip="OBBBA deduction — up to $25,000 ($50,000 MFJ)">
+        <Field label="Annual Tip Income" tip="OBBBA deduction -- up to $25,000 ($50,000 MFJ)">
           <Num val={i.annualTips} set={u("annualTips")} w={130} />
         </Field>
       </Card>
 
       {(i.numKidsUnder13||0) > 0 && (
-        <Card title="Childcare" sub="Child & Dependent Care Credit — OBBBA enhanced to 50% of expenses (nonrefundable)">
+        <Card title="Childcare" sub="Child & Dependent Care Credit -- OBBBA enhanced to 50% of expenses (nonrefundable)">
           <Field label="Annual Childcare Expenses" tip={`Max eligible: ${f$((i.numKidsUnder13||0) >= 2 ? 6000 : 3000)} for ${i.numKidsUnder13} child${(i.numKidsUnder13||0)>1?"ren":""} under 13`}>
             <Num val={i.childcareExpenses} set={u("childcareExpenses")} w={130} max={(i.numKidsUnder13||0) >= 2 ? 6000 : 3000} />
           </Field>
@@ -583,12 +582,12 @@ return (
 
       <Card title="Student Loans">
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          <Field label="Annual Interest Paid" tip="Federal deduction — up to $2,500"><Num val={i.slInterest} set={u("slInterest")} max={2500} /></Field>
-          <Field label="Annual Payments" tip="Maine credit — payments up to $2,500"><Num val={i.slPayments} set={u("slPayments")} max={2500} /></Field>
+          <Field label="Annual Interest Paid" tip="Federal deduction -- up to $2,500"><Num val={i.slInterest} set={u("slInterest")} max={2500} /></Field>
+          <Field label="Annual Payments" tip="Maine credit -- payments up to $2,500"><Num val={i.slPayments} set={u("slPayments")} max={2500} /></Field>
         </div>
       </Card>
 
-      <Card title="Paid Family & Medical Leave" sub="Maine PFML — up to 12 weeks. Benefits are federally taxable, FICA-exempt, and Maine-exempt in 2026.">
+      <Card title="Paid Family & Medical Leave" sub="Maine PFML -- up to 12 weeks. Benefits are federally taxable, FICA-exempt, and Maine-exempt in 2026.">
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 8 }}>
           <input type="range" min={0} max={12} value={i.pfmlWeeks} onChange={e => u("pfmlWeeks")(+e.target.value)} style={{ flex: 1, accentColor: C.navy, height: 4 }} />
           <span style={{ fontSize: 18, fontWeight: 700, fontFamily: mono, color: i.pfmlWeeks > 0 ? C.navy : C.textMuted, minWidth: 65, textAlign: "right" }}>
@@ -609,21 +608,21 @@ return (
           <button onClick={() => setTab("results")} style={{
             padding: "12px 48px", background: C.navy, color: "#fff", border: "none", borderRadius: 4,
             fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: font,
-          }}>View Results →</button>
+          }}>View Results  --</button>
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={() => { setScenA({ inputs: { ...i }, results: calc(i) }); }} style={{
               padding: "8px 20px", background: scenA ? C.bluePale : C.white, color: C.navy, border: `1px solid ${scenA ? C.blue : C.border}`,
               borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: font,
-            }}>Save as Scenario A{scenA ? " ✓" : ""}</button>
+            }}>Save as Scenario A{scenA ? " Y" : ""}</button>
             <button onClick={() => { setScenB({ inputs: { ...i }, results: calc(i) }); }} style={{
               padding: "8px 20px", background: scenB ? C.bluePale : C.white, color: C.navy, border: `1px solid ${scenB ? C.blue : C.border}`,
               borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: font,
-            }}>Save as Scenario B{scenB ? " ✓" : ""}</button>
+            }}>Save as Scenario B{scenB ? " Y" : ""}</button>
           </div>
           {(scenA || scenB) && (
             <div style={{ fontSize: 11, color: C.textMuted }}>
-              {scenA && scenB ? "Both scenarios saved — " : scenA ? "Scenario A saved. Change inputs and save B to compare — " : "Scenario B saved. Change inputs and save A to compare — "}
-              {scenA && scenB && <button onClick={() => setTab("compare")} style={{ background: "none", border: "none", color: C.blue, fontWeight: 600, cursor: "pointer", fontSize: 11, fontFamily: font, padding: 0 }}>View Comparison →</button>}
+              {scenA && scenB ? "Both scenarios saved -- " : scenA ? "Scenario A saved. Change inputs and save B to compare -- " : "Scenario B saved. Change inputs and save A to compare -- "}
+              {scenA && scenB && <button onClick={() => setTab("compare")} style={{ background: "none", border: "none", color: C.blue, fontWeight: 600, cursor: "pointer", fontSize: 11, fontFamily: font, padding: 0 }}>View Comparison  --</button>}
             </div>
           )}
         </div>
@@ -658,19 +657,19 @@ return (
       <Card title="Credits & Deductions Applied">
         <div className="grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {[
-            r.eitc > 0 && { l: "Earned Income Credit", v: f$(r.eitc), d: "Federal — refundable" },
+            r.eitc > 0 && { l: "Earned Income Credit", v: f$(r.eitc), d: "Federal -- refundable" },
             r.meEitc > 0 && { l: "Maine EITC", v: f$(r.meEitc), d: `${i.numKidsUnder17 > 0 ? "25" : "50"}% of federal` },
-            r.ctc > 0 && { l: "Child Tax Credit", v: f$(r.ctc), d: `${i.numKidsUnder17} × $2,200` },
+            r.ctc > 0 && { l: "Child Tax Credit", v: f$(r.ctc), d: `${i.numKidsUnder17} x $2,200` },
             r.actc > 0 && { l: "ACTC (refundable)", v: f$(r.actc) },
-            r.otDed > 0 && { l: "Overtime Deduction", v: f$(r.otDed), d: "OBBBA — reduces taxable income" },
-            r.tipDed > 0 && { l: "Tip Income Deduction", v: f$(r.tipDed), d: "OBBBA — reduces taxable income" },
-            r.seniorDed > 0 && { l: "Senior Deduction", v: f$(r.seniorDed), d: "OBBBA 2025–2028" },
-            r.cdctc > 0 && { l: "Child Care Credit", v: f$(r.cdctc), d: "OBBBA enhanced — nonrefundable" },
+            r.otDed > 0 && { l: "Overtime Deduction", v: f$(r.otDed), d: "OBBBA -- reduces taxable income" },
+            r.tipDed > 0 && { l: "Tip Income Deduction", v: f$(r.tipDed), d: "OBBBA -- reduces taxable income" },
+            r.seniorDed > 0 && { l: "Senior Deduction", v: f$(r.seniorDed), d: "OBBBA 2025-2028" },
+            r.cdctc > 0 && { l: "Child Care Credit", v: f$(r.cdctc), d: "OBBBA enhanced -- nonrefundable" },
             r.su > 0 && { l: "Saver's Credit", v: f$(r.su), d: `${fp(r.sr)} tier` },
             r.pc > 0 && { l: "Property Tax Fairness", v: f$(r.pc) },
             r.sc > 0 && { l: "Sales Tax Fairness", v: f$(r.sc) },
             r.sl > 0 && { l: "Student Loan Repayment", v: f$(r.sl) },
-            r.dc > 0 && { l: "ME Dependent Credit", v: f$(r.dc), d: `${i.numKidsUnder17} × $300` },
+            r.dc > 0 && { l: "ME Dependent Credit", v: f$(r.dc), d: `${i.numKidsUnder17} x $300` },
           ].filter(Boolean).map((c, j) => (
             <div key={j} style={{ padding: "12px 14px", background: C.cardAlt, borderRadius: 4 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: C.green, fontFamily: mono }}>{c.v}</div>
@@ -700,7 +699,7 @@ return (
           )}
           {r.cdctc > 0 && (
             <div style={{ padding: "12px 16px", background: C.greenPale, borderRadius: 4, borderLeft: `3px solid ${C.green}`, fontSize: 13, color: C.text, lineHeight: 1.7 }}>
-              <strong>Child Care Credit: {f$(r.cdctc)}.</strong> OBBBA-enhanced credit at up to 50% of {f$(i.childcareExpenses)} in qualifying expenses. Nonrefundable — applied against your federal tax.
+              <strong>Child Care Credit: {f$(r.cdctc)}.</strong> OBBBA-enhanced credit at up to 50% of {f$(i.childcareExpenses)} in qualifying expenses. Nonrefundable -- applied against your federal tax.
             </div>
           )}
           {r.eitc > 0 && (
@@ -724,7 +723,7 @@ return (
             </div>
           )}
           <div style={{ padding: "12px 16px", background: C.cardAlt, borderRadius: 4, fontSize: 12, color: C.textSec, lineHeight: 1.7 }}>
-            Combined marginal rate: {(r.mr*100).toFixed(1)}% — federal {r.fti <= FED[i.filingStatus].bk[0][0] ? "10" : "12"}% + Maine {r.mti <= ME[i.filingStatus].bk[0][0] ? "5.8" : "6.75"}% + FICA 7.65%. Each additional pre-tax dollar saves approximately {Math.round(r.mr*100)}¢.
+            Combined marginal rate: {(r.mr*100).toFixed(1)}% -- federal {r.fti <= FED[i.filingStatus].bk[0][0] ? "10" : "12"}% + Maine {r.mti <= ME[i.filingStatus].bk[0][0] ? "5.8" : "6.75"}% + FICA 7.65%. Each additional pre-tax dollar saves approximately {Math.round(r.mr*100)}¢.
           </div>
         </div>
       </Card>
@@ -803,11 +802,11 @@ return (
           <button onClick={() => setTab("input")} style={{
             padding: "10px 32px", background: C.navy, color: "#fff", border: "none", borderRadius: 4,
             fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: font, letterSpacing: "0.06em", textTransform: "uppercase",
-          }}>Go to Inputs →</button>
+          }}>Go to Inputs  --</button>
         </div>
       ) : (() => {
         const a = scenA.results, b = scenB.results, ai = scenA.inputs, bi = scenB.inputs;
-        const delta = (va, vb) => { const d = vb - va; return d === 0 ? "—" : (d > 0 ? "+" : "") + f$(Math.round(d)); };
+        const delta = (va, vb) => { const d = vb - va; return d === 0 ? "--" : (d > 0 ? "+" : "") + f$(Math.round(d)); };
         const dColor = (va, vb, invert) => { const d = vb - va; if (d === 0) return C.textMuted; return (invert ? d < 0 : d > 0) ? C.green : C.red; };
         const scenLabel = (inp) => {
           const pay = inp.payType === "hourly" ? `$${inp.hourlyRate}/hr` : f$(inp.salary) + "/yr";
@@ -890,7 +889,7 @@ return (
                     <td style={{ ...tds, color: C.textSec }}>{row.l}</td>
                     <td style={{ ...tdr }}>{row.av}</td>
                     <td style={{ ...tdr }}>{row.bv}</td>
-                    <td style={{ ...tdr, color: C.textMuted }}>—</td>
+                    <td style={{ ...tdr, color: C.textMuted }}>--</td>
                   </tr>
                 );
                 return (
@@ -916,7 +915,7 @@ return (
         <div style={{ padding: 48, textAlign: "center" }}>
           <div style={{ fontSize: 14, color: C.textMuted, fontWeight: 600, marginBottom: 8 }}>No scenario data</div>
           <div style={{ fontSize: 13, color: C.textMuted, marginBottom: 16 }}>Enter your compensation on the Inputs tab to generate optimization recommendations.</div>
-          <button onClick={() => setTab("input")} style={{ padding: "10px 32px", background: C.navy, color: "#fff", border: "none", borderRadius: 4, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: font, letterSpacing: "0.06em", textTransform: "uppercase" }}>Go to Inputs →</button>
+          <button onClick={() => setTab("input")} style={{ padding: "10px 32px", background: C.navy, color: "#fff", border: "none", borderRadius: 4, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: font, letterSpacing: "0.06em", textTransform: "uppercase" }}>Go to Inputs  --</button>
         </div>
       ) : (() => {
         const recs = [];
@@ -925,10 +924,10 @@ return (
         // OT deduction
         if (r.otDed > 0) {
           const taxSaved = Math.round(r.otDed * r.mr);
-          recs.push({ priority: "info", title: `Overtime deduction: ${f$(r.otDed)} applied`, body: `The OBBBA overtime deduction is reducing your federal taxable income by ${f$(r.otDed)}, saving approximately ${f$(taxSaved)} in combined taxes. This deduction covers the 0.5× premium portion of your time-and-a-half pay. The cap is ${f$(fs === "MFJ" ? 25000 : 12500)}/yr through 2028.` });
+          recs.push({ priority: "info", title: `Overtime deduction: ${f$(r.otDed)} applied`, body: `The OBBBA overtime deduction is reducing your federal taxable income by ${f$(r.otDed)}, saving approximately ${f$(taxSaved)} in combined taxes. This deduction covers the 0.5x premium portion of your time-and-a-half pay. The cap is ${f$(fs === "MFJ" ? 25000 : 12500)}/yr through 2028.` });
         }
         if (i.payType === "hourly" && (i.otHours||0) === 0 && i.hourlyRate > 0) {
-          recs.push({ priority: "low", title: "No overtime entered", body: `If you work any overtime, the OBBBA allows you to deduct the premium portion (the 0.5× part of time-and-a-half) from federal taxable income — up to ${f$(fs === "MFJ" ? 25000 : 12500)}/yr. Even 2 hours/week of OT at $${i.hourlyRate}/hr would save approximately ${f$(Math.round(2 * i.hourlyRate * 0.5 * r.ww * r.mr))}/yr.` });
+          recs.push({ priority: "low", title: "No overtime entered", body: `If you work any overtime, the OBBBA allows you to deduct the premium portion (the 0.5x part of time-and-a-half) from federal taxable income -- up to ${f$(fs === "MFJ" ? 25000 : 12500)}/yr. Even 2 hours/week of OT at $${i.hourlyRate}/hr would save approximately ${f$(Math.round(2 * i.hourlyRate * 0.5 * r.ww * r.mr))}/yr.` });
         }
 
         // Tip deduction
@@ -943,7 +942,7 @@ return (
 
         // Childcare credit
         if (r.cdctc > 0) {
-          recs.push({ priority: "info", title: `Child & Dependent Care Credit: ${f$(r.cdctc)}`, body: `The OBBBA-enhanced CDCTC is reducing your federal tax by ${f$(r.cdctc)} based on ${f$(i.childcareExpenses)} in childcare expenses. This credit is nonrefundable — it can only offset tax owed.` });
+          recs.push({ priority: "info", title: `Child & Dependent Care Credit: ${f$(r.cdctc)}`, body: `The OBBBA-enhanced CDCTC is reducing your federal tax by ${f$(r.cdctc)} based on ${f$(i.childcareExpenses)} in childcare expenses. This credit is nonrefundable -- it can only offset tax owed.` });
         }
         if ((i.numKidsUnder13||0) > 0 && (i.childcareExpenses||0) === 0) {
           const maxExp = (i.numKidsUnder13||0) >= 2 ? 6000 : 3000;
@@ -952,7 +951,7 @@ return (
 
         // EITC
         if (r.eitc > 0) {
-          recs.push({ priority: "info", title: `EITC: ${f$(r.eitc)} federal + ${f$(r.meEitc)} Maine`, body: `You qualify for ${f$(r.eitc)} in federal Earned Income Credit and ${f$(r.meEitc)} in Maine EITC (${i.numKidsUnder17 > 0 ? "25" : "50"}% of federal). Both are fully refundable. Note: increasing pre-tax deductions raises AGI-based phase-out risk for EITC — balance retirement savings against credit eligibility.` });
+          recs.push({ priority: "info", title: `EITC: ${f$(r.eitc)} federal + ${f$(r.meEitc)} Maine`, body: `You qualify for ${f$(r.eitc)} in federal Earned Income Credit and ${f$(r.meEitc)} in Maine EITC (${i.numKidsUnder17 > 0 ? "25" : "50"}% of federal). Both are fully refundable. Note: increasing pre-tax deductions raises AGI-based phase-out risk for EITC -- balance retirement savings against credit eligibility.` });
         }
         if (r.eitc === 0 && r.ag > 0 && r.ag < 60000) {
           const testEitc = calcEitc(r.ag, r.agi, i.numKidsUnder17||0, fs);
@@ -1041,15 +1040,13 @@ return (
   )}
 
   <div style={{ textAlign: "center", padding: "24px 0 8px", fontSize: 10, color: C.textMuted, lineHeight: 1.7, borderTop: `1px solid ${C.border}`, marginTop: 24 }}>
-    IRS Rev. Proc. 2025-32 · OBBBA §§ 224–225, 70101–70412 · IRS Notice 2025-67 · Maine Revenue Services 2026
-    <br />EITC: Rev. Proc. 2025-32 Table 5 · CDCTC: OBBBA §70301 · Senior Ded: OBBBA §70103 · Tip Ded: OBBBA §70201
-    <br />PFML: federally taxable, FICA-exempt (2026), Maine-exempt per 26 M.R.S. § 850-L
-    <br />Maine dependent credit: 36 M.R.S. §5219-SS ($300/dep, 2026+)
-    <br />Estimates only — not tax advice. Consult a qualified professional.
+    IRS Rev. Proc. 2025-32 · OBBBA  224-225, 70101-70412 · IRS Notice 2025-67 · Maine Revenue Services 2026
+    <br />EITC: Rev. Proc. 2025-32 Table 5 · CDCTC: OBBBA 70301 · Senior Ded: OBBBA 70103 · Tip Ded: OBBBA 70201
+    <br />PFML: federally taxable, FICA-exempt (2026), Maine-exempt per 26 M.R.S.  850-L
+    <br />Maine dependent credit: 36 M.R.S. 5219-SS ($300/dep, 2026+)
+    <br />Estimates only -- not tax advice. Consult a qualified professional.
     <br /><span style={{ fontSize: 9 }}>v2.0 · Last updated March 2026</span>
   </div>
 </div>
-```
-
 );
 }
