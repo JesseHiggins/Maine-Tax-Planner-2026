@@ -4,6 +4,8 @@
 
 This document covers the deployment of the Maine 2026 Tax Planner to Vercel. The application is a static React Single Page Application (SPA) built with Vite.
 
+**Repository:** https://github.com/JesseHiggins/Maine-Tax-Planner-2026
+
 ## Deployment Steps
 
 ### 1. Prerequisites
@@ -177,6 +179,7 @@ Vercel automatically deploys on:
 
 ## Support Resources
 
+- [GitHub Repository](https://github.com/JesseHiggins/Maine-Tax-Planner-2026)
 - [Vite Documentation](https://vitejs.dev)
 - [Vercel Documentation](https://vercel.com/docs)
 - [React Documentation](https://react.dev)
