@@ -542,6 +542,7 @@ return (
         <div style={{ display: "flex", gap: 16, marginTop: 8, flexWrap: "wrap" }}>
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textSec, cursor: "pointer" }}>
             <input type="checkbox" checked={i.age65} onChange={e => u("age65")(e.target.checked)} style={{ accentColor: C.navy, width: 14, height: 14, flexShrink: 0 }} /> Taxpayer age 65+
+            <input type="checkbox" style={{ width: 20 }} />
           </label>
           {i.filingStatus === "MFJ" && (
             <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textSec, cursor: "pointer" }}>
