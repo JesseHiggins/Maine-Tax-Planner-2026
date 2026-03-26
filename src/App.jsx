@@ -248,6 +248,11 @@ const printCSS = `
   body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print { display: none !important; }
 }
+
+/* Desktop Enhancements (min-width: 769px) */
+@media (min-width: 769px) {
+  .tabs-container button { font-size: 12px !important; padding: 12px 16px !important; }
+}
 `;
 
 const Card = ({ title, sub, children, noPad }) => (
@@ -397,7 +402,7 @@ return (
 
   {/* Nav */}
   <div className="no-print" style={{ display: "flex", gap: 8, marginBottom: 16, borderBottom: `1px solid ${C.border}`, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: 'touch', alignItems: "stretch" }}>
-    <div style={{ display: "flex", gap: 0, overflowX: "auto", WebkitOverflowScrolling: 'touch' }}>
+    <div className="tabs-container" style={{ display: "flex", gap: 0, overflowX: "auto", WebkitOverflowScrolling: 'touch' }}>
       {tabs.map(t => (
         <button key={t.id} onClick={() => setTab(t.id)} style={{
           padding: "10px 12px", fontSize: '10px', fontWeight: 600, cursor: "pointer",
