@@ -316,6 +316,24 @@ const KPI = ({ label, val, sub, color, accent }) => (
   </div>
 );
 
+const Tooltip = ({ text, children }) => {
+const [show, setShow] = useState(false);
+return (
+<div style={{ display: "inline-flex", alignItems: "center", position: "relative" }} onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+{children}
+{show && (
+<div style={{
+position: "absolute", bottom: "100%", left: 0, marginBottom: 8, background: C.navy, color: "#fff", fontSize: 11,
+padding: "8px 10px", borderRadius: 4, whiteSpace: "nowrap", zIndex: 1000, boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+}}>
+{text}
+<div style={{ position: "absolute", top: "100%", left: 8, width: 0, height: 0, borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: `4px solid ${C.navy}` }} />
+</div>
+)}
+</div>
+);
+};
+
 const HBar = ({ label, val, max, color = C.blue }) => {
 const p = max > 0 ? Math.min(100, Math.round(val / max * 100)) : 0;
 return (
@@ -327,6 +345,47 @@ return (
 <div style={{ width: 80, textAlign: "right", fontSize: 13, fontWeight: 600, color: C.text, fontFamily: mono, flexShrink: 0 }}>{f$(val)}</div>
 </div>
 );
+};
+
+// ============================================================
+// TOOLTIP EXPLANATIONS
+// ============================================================
+const tooltips = {
+  "W-2 Wages": "Gross wages from employment before any deductions (401k, health insurance, etc)",
+  "PFML Benefits": "Paid Family & Medical Leave benefits received from Maine PFML program",
+  "Spouse Income": "Spouse's W-2 wages or income subject to tax",
+  "Other Income": "1099 income, business income, or other taxable income not from W-2",
+  "Total Income (Line 9)": "Sum of all wages, benefits, and other income — your starting point for tax calculation",
+  "Student Loan Interest Deduction": "Interest paid on qualified student loans, deductible up to $2,500/year",
+  "Adjusted Gross Income": "Income after above-the-line deductions — key threshold for many credits and phase-outs",
+  "Standard Deduction": `IRS standard deduction for your filing status — reduces taxable income (includes age 65+ bonus if applicable)`,
+  "Overtime Deduction (OBBBA)": "Deduction for the 0.5x premium portion of overtime pay under the OBBBA (2026-2028)",
+  "Tip Income Deduction (OBBBA)": "Deduction for tip income under the OBBBA (2026-2028)",
+  "Senior Deduction (OBBBA)": "Additional deduction for taxpayers and spouses age 65+ under OBBBA (2026-2028)",
+  "Taxable Income": "AGI minus standard deduction and any other deductions — the amount federal income tax is calculated on",
+  "Gross Tax": "Federal income tax before any credits, based on progressive tax brackets",
+  "Child Tax Credit": "Nonrefundable credit of $2,200 per child under age 17 (updated under OBBBA)",
+  "After CTC": "Gross federal tax minus Child Tax Credit — shows remaining tax liability before other credits",
+  "Saver's Credit": "Nonrefundable credit for contributions to retirement accounts; percentage varies by AGI",
+  "Net Federal Tax": "Final federal income tax after all nonrefundable credits — taxes you owe before refundable credits",
+  "Child & Dependent Care Credit": "Credit for expenses for childcare and dependent care, percentage varies by AGI (OBBBA-enhanced for 2026+)",
+  "ACTC (refundable)": "Refundable portion of Child Tax Credit — can reduce tax owed below zero and result in refund",
+  "Earned Income Credit (refundable)": "Refundable credit for lower-income workers with or without children — can generate a refund",
+  "Social Security + Medicare": "FICA taxes (6.2% Social Security + 1.45% Medicare) on wages",
+  "Spouse FICA": "Spouse's FICA taxes on their wages",
+  "Maine Income (excl. PFML)": "W-2 wages and other income subject to Maine state tax (excludes PFML benefits)",
+  "Maine Taxable Income": "Maine income after standard deduction and exemptions — amount Maine income tax is calculated on",
+  "Maine Gross Tax": "Maine state income tax before credits, based on Maine progressive tax brackets",
+  "Maine EITC": "Maine's earned income tax credit — refundable credit for lower-income workers",
+  "Student Loan Repayment Credit": "Maine credit for student loan payments (up to payment amount, limited per tax year)",
+  "Dependent Exemption Credit ($300/dep)": "Maine credit of $300 per dependent — replaces the dependent exemption",
+  "Property Tax Fairness Credit": "Maine credit based on rent or property taxes if income is below threshold",
+  "Sales Tax Fairness Credit": "Maine credit to offset sales taxes paid; amount depends on income level",
+  "Maine Net": "Maine tax after all credits — positive means you owe, negative means you benefit",
+  "Estimated Refund": "Amount you will receive back from federal and Maine governments combined",
+  "Estimated Owed": "Amount of additional federal and Maine taxes you will owe at tax time",
+  "Annual Take-Home": "Gross income minus federal tax, FICA tax, Maine tax, and all pre-tax deductions",
+  "Retirement Contributions": "Sum of 401(k) and HSA contributions — amounts set aside for retirement/medical savings",
 };
 
 // ============================================================
@@ -832,9 +891,19 @@ return (
           if (row.h) return (
             <tr key={j}><td colSpan={2} style={{ padding: "14px 20px 8px", fontWeight: 700, fontSize: 11, color: C.navy, borderBottom: `2px solid ${C.border}`, textTransform: "uppercase", letterSpacing: "0.08em", background: C.cardAlt }}>{row.h}</td></tr>
           );
+          const hasTooltip = tooltips[row.l];
           return (
             <tr key={j} style={{ background: row.b ? C.cardAlt : "transparent" }}>
-              <td style={{ ...tds, fontWeight: row.b ? 700 : 400, color: row.b ? C.navy : C.textSec }}>{row.l}</td>
+              <td style={{ ...tds, fontWeight: row.b ? 700 : 400, color: row.b ? C.navy : C.textSec }}>
+                {hasTooltip ? (
+                  <Tooltip text={tooltips[row.l]}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <div>{row.l}</div>
+                      <div style={{ fontSize: 11, color: C.blue, cursor: "pointer", fontWeight: 700 }}>?</div>
+                    </div>
+                  </Tooltip>
+                ) : row.l}
+              </td>
               <td style={{ ...tdr, fontWeight: row.b ? 700 : 500, color: row.c || (row.b ? C.navy : C.text) }}>{f$(Math.round(row.v))}</td>
             </tr>
           );
@@ -945,9 +1014,19 @@ return (
                     <td style={{ ...tdr, color: C.textMuted }}>--</td>
                   </tr>
                 );
+                const hasTooltip = tooltips[row.l];
                 return (
                   <tr key={j} style={{ background: row.bold ? C.cardAlt : "transparent" }}>
-                    <td style={{ ...tds, fontWeight: row.bold ? 700 : 400, color: row.bold ? C.navy : C.textSec }}>{row.l}</td>
+                    <td style={{ ...tds, fontWeight: row.bold ? 700 : 400, color: row.bold ? C.navy : C.textSec }}>
+                      {hasTooltip ? (
+                        <Tooltip text={tooltips[row.l]}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <div>{row.l}</div>
+                            <div style={{ fontSize: 11, color: C.blue, cursor: "pointer", fontWeight: 700 }}>?</div>
+                          </div>
+                        </Tooltip>
+                      ) : row.l}
+                    </td>
                     <td style={{ ...tdr, fontWeight: row.bold ? 700 : 500 }}>{f$(row.a)}</td>
                     <td style={{ ...tdr, fontWeight: row.bold ? 700 : 500 }}>{f$(row.b)}</td>
                     <td style={{ ...tdr, fontWeight: 600, color: dColor(row.a, row.b, row.invert) }}>{delta(row.a, row.b)}</td>
