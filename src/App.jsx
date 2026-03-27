@@ -216,6 +216,49 @@ const printCSS = `
   button { -webkit-appearance: none; appearance: none; }
 }
 
+/* Range Slider Styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: #E2E6ED;
+  outline: none;
+  border: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #051C2C;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #051C2C;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+input[type="range"]::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+/* Desktop: Reduced height number inputs */
+@media (min-width: 769px) {
+  .num-input { min-height: 40px !important; }
+}
+
 /* Mobile Responsive (max-width: 768px) */
 @media (max-width: 768px) {
   body { padding: 0; margin: 0; }
@@ -229,6 +272,7 @@ const printCSS = `
   input[type="number"] { font-size: 16px !important; padding: 10px 12px !important; }
   button { padding: 12px 16px !important; font-size: 14px !important; min-height: 44px; min-width: 44px; }
   input[type="text"], input[type="email"], select, textarea { font-size: 16px !important; padding: 12px !important; }
+  .num-input { min-height: 44px !important; }
 }
 
 /* Tablet (max-width: 1024px) */
@@ -282,7 +326,7 @@ const inp = { padding: "10px 12px", background: C.white, border: `1px solid ${C.
 
 const Num = ({ val, set, pre="$", min=0, max, step=1, w=100 }) => (
 
-  <div style={{ display: "flex", alignItems: "center", gap: 4, minHeight: 44 }}>
+  <div style={{ display: "flex", alignItems: "center", gap: 4, minHeight: 44 }} className="num-input">
     {pre && <span style={{ color: C.textMuted, fontSize: 12, fontFamily: mono, lineHeight: 1 }}>{pre}</span>}
     <input type="number" value={val || ""} min={min} max={max} step={step}
       placeholder="0"
