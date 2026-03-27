@@ -430,6 +430,11 @@ const tooltips = {
   "Estimated Owed": "Amount of additional federal and Maine taxes you will owe at tax time",
   "Annual Take-Home": "Gross income minus federal tax, FICA tax, Maine tax, and all pre-tax deductions",
   "Retirement Contributions": "Sum of 401(k) and HSA contributions — amounts set aside for retirement/medical savings",
+  "Gross Wages": "Total wages earned before any taxes or deductions",
+  "Weekly Work Take-Home": "Your paycheck amount per week: gross wages minus federal tax, FICA tax, Maine tax, health insurance, 401k, and HSA deductions",
+  "Monthly Take-Home": "Total monthly income available after all federal, state, and FICA taxes plus pre-tax deductions (401k, HSA, insurance)",
+  "Monthly Surplus": "Monthly take-home minus your monthly expenses — the amount left over each month after taxes, deductions, and fixed expenses",
+  "Weekly PFML Take-Home": "Your income during PFML leave: PFML benefit minus federal tax (PFML is FICA-exempt and Maine-exempt)",
 };
 
 // ============================================================
@@ -467,12 +472,7 @@ const tabs = [
 { id: "input", label: "Inputs" },
 { id: "results", label: "Overview" },
 { id: "breakdown", label: "Detail" },
-{ id: "compare", label: "Compare" },
-{ id: "advisor", label: "Advisor" },
-];
-
-const tds = { padding: "10px 20px", fontSize: 13, borderBottom: `1px solid ${C.borderLight}`, color: C.textSec };
-const tdr = { ...tds, textAlign: "right", fontFamily: mono, fontWeight: 500, color: C.text };
+  { id: "compare", label: "Take Home / Compare" },
 const thr = { ...tds, fontWeight: 700, color: C.navy, textAlign: "right", fontFamily: mono };
 
 return (
@@ -956,21 +956,22 @@ return (
     </Card>
   )}
 
-  {/* ==================== COMPARE ==================== */}
+  {/* ==================== TAKE HOME / COMPARE ==================== */}
   {tab === "compare" && (
     <div>
-      {(!scenA || !scenB) ? (
+      {!scenA && !scenB ? (
         <div style={{ padding: 48, textAlign: "center" }}>
-          <div style={{ fontSize: 14, color: C.textMuted, fontWeight: 600, marginBottom: 8 }}>
-            {!scenA && !scenB ? "No scenarios saved yet" : scenA ? "Scenario B not saved yet" : "Scenario A not saved yet"}
-          </div>
-          <div style={{ fontSize: 13, color: C.textMuted, marginBottom: 16 }}>Go to Inputs, configure a scenario, and save it as A or B. Then change the inputs and save the other.</div>
+          <div style={{ fontSize: 14, color: C.textMuted, fontWeight: 600, marginBottom: 8 }}>No scenarios saved yet</div>
+          <div style={{ fontSize: 13, color: C.textMuted, marginBottom: 16 }}>Go to Inputs, configure a scenario, and save it as A. To compare, change the inputs and save another as B.</div>
           <button onClick={() => setTab("input")} style={{
             padding: "10px 32px", background: C.navy, color: "#fff", border: "none", borderRadius: 4,
             fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: font, letterSpacing: "0.06em", textTransform: "uppercase",
           }}>Go to Inputs  --</button>
         </div>
       ) : (() => {
+        // Single scenario or comparison mode
+        const single = scenA && !scenB;
+        const a = scenA?.results, b = scenB?.results, ai = scenA?.inputs, bi = scenB?.inputs;
         const a = scenA.results, b = scenB.results, ai = scenA.inputs, bi = scenB.inputs;
         const delta = (va, vb) => { const d = vb - va; return d === 0 ? "--" : (d > 0 ? "+" : "") + f$(Math.round(d)); };
         const dColor = (va, vb, invert) => { const d = vb - va; if (d === 0) return C.textMuted; return (invert ? d < 0 : d > 0) ? C.green : C.red; };
@@ -982,6 +983,95 @@ return (
           if (inp.hsaContrib > 0) parts.push(`HSA ${f$(inp.hsaContrib)}`);
           return parts.join(" · ");
         };
+        
+        // Single scenario view
+        if (single) {
+          return (
+            <>
+              <div style={{ padding: "14px 16px", background: C.bluePale, borderRadius: 4, borderLeft: `3px solid ${C.blue}`, marginBottom: 16 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: C.blue, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Current Scenario</div>
+                <div style={{ fontSize: 12, color: C.text, fontWeight: 600 }}>{scenLabel(ai)}</div>
+              </div>
+
+              <div className="flex-kpi" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
+                {[
+                  { l: "Refund", v: a.tr, tip: "Expected refund from federal and state" },
+                  { l: "Weekly Take-Home", v: Math.round(a.wth), tip: "Gross pay minus taxes and deductions" },
+                  { l: "Monthly Take-Home", v: Math.round(a.mt), tip: "Average monthly income after taxes" },
+                  { l: "Monthly Surplus", v: Math.round(a.ms), tip: "Monthly take-home minus expenses" },
+                ].map((k, idx) => (
+                  <Tooltip key={idx} text={k.tip}>
+                    <div style={{ flex: 1, minWidth: 130, padding: "14px 16px", background: C.white, borderRadius: 4, border: `1px solid ${C.border}`, textAlign: "center", cursor: "pointer" }}>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>{k.l}</div>
+                      <div style={{ fontSize: 22, fontWeight: 700, fontFamily: mono, color: C.navy }}>{f$(k.v)}</div>
+                    </div>
+                  </Tooltip>
+                ))}
+              </div>
+
+              <Card noPad>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}><tbody>
+                  {[
+                    { h: "Income" },
+                    { l: "Gross Wages", v: a.ag },
+                    a.ap > 0 && { l: "PFML Benefits", v: a.ap },
+                    { l: "Adjusted Gross Income", v: a.agi, bold: true },
+                    { h: "Cash Flow" },
+                    { l: "Weekly Work Take-Home", v: Math.round(a.wth) },
+                    { l: "Monthly Take-Home", v: Math.round(a.mt), bold: true },
+                    { l: "Monthly Surplus", v: Math.round(a.ms), bold: true },
+                    a.ww < 52 && { l: "Weekly Leave Take-Home (PFML)", v: Math.round(a.pth) },
+                    { h: "Taxes" },
+                    { l: "Net Federal Tax", v: a.nf },
+                    { l: "FICA", v: Math.round(a.mf) },
+                    { l: "Maine Gross Tax", v: a.mg },
+                    { h: "Summary" },
+                    { l: "Estimated Refund", v: a.tr, bold: true },
+                    { l: "Retirement Contributions", v: Math.round(a.tre) },
+                    { l: "Marginal Rate", v: null, custom: true, av: (a.mr*100).toFixed(1)+"%" },
+                  ].filter(Boolean).map((row, j) => {
+                    if (row.h) return (
+                      <tr key={j}><td colSpan={2} style={{ padding: "14px 20px 8px", fontWeight: 700, fontSize: 11, color: C.navy, borderBottom: `2px solid ${C.border}`, textTransform: "uppercase", letterSpacing: "0.08em", background: C.cardAlt }}>{row.h}</td></tr>
+                    );
+                    if (row.custom) return (
+                      <tr key={j}>
+                        <td style={{ ...tds, color: C.textSec }}>{row.l}</td>
+                        <td style={{ ...tdr }}>{row.av}</td>
+                      </tr>
+                    );
+                    const hasTooltip = tooltips[row.l];
+                    return (
+                      <tr key={j} style={{ background: row.bold ? C.cardAlt : "transparent" }}>
+                        <td style={{ ...tds, fontWeight: row.bold ? 700 : 400, color: row.bold ? C.navy : C.textSec }}>
+                          {hasTooltip ? (
+                            <Tooltip text={tooltips[row.l]}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <div>{row.l}</div>
+                                <div style={{ fontSize: 11, color: C.blue, cursor: "pointer", fontWeight: 700 }}>?</div>
+                              </div>
+                            </Tooltip>
+                          ) : row.l}
+                        </td>
+                        <td style={{ ...tdr, fontWeight: row.bold ? 700 : 500, color: row.bold ? C.navy : C.text }}>{row.custom ? row.av : f$(row.v)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody></table>
+              </Card>
+
+              <div style={{ marginTop: 16, padding: 16, background: C.cardAlt, borderRadius: 4, border: `1px solid ${C.border}` }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, marginBottom: 8 }}>💡 Save Another Scenario to Compare</div>
+                <div style={{ fontSize: 12, color: C.textSec, lineHeight: 1.6, marginBottom: 12 }}>Go back to Inputs, change some parameters, and save as Scenario B to see a side-by-side comparison of how different choices impact your take-home pay and taxes.</div>
+                <button onClick={() => setTab("input")} style={{
+                  padding: "8px 24px", background: C.navy, color: "#fff", border: "none", borderRadius: 4,
+                  fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: font, letterSpacing: "0.06em", textTransform: "uppercase",
+                }}>Create Scenario B  --</button>
+              </div>
+            </>
+          );
+        }
+        
+        // Comparison view (both scenarios saved)
         const rows = [
           { h: "Income" },
           { l: "Gross Wages", a: a.ag, b: b.ag },
@@ -1011,6 +1101,8 @@ return (
           { l: "Retirement Contributions", a: Math.round(a.tre), b: Math.round(b.tre) },
           { l: "Marginal Rate", a: null, b: null, custom: true, av: (a.mr*100).toFixed(1)+"%", bv: (b.mr*100).toFixed(1)+"%" },
         ].filter(Boolean);
+        
+        // Comparison view (both scenarios saved)
         return (<>
           <div className="grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
             <div style={{ padding: "14px 16px", background: C.bluePale, borderRadius: 4, borderLeft: `3px solid ${C.blue}` }}>
