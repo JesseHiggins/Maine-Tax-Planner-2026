@@ -211,7 +211,8 @@ const printCSS = `
 /* Mobile & Safari Optimizations */
 @supports (-webkit-appearance: none) {
   input[type="number"] { font-size: 16px !important; }
-  input { margin: 0; -webkit-appearance: none; appearance: none; border-radius: 4px; }
+  input:not([type="checkbox"]) { margin: 0; -webkit-appearance: none; appearance: none; border-radius: 4px; }
+  input[type="checkbox"] { -webkit-appearance: checkbox; appearance: checkbox; margin-right: 8px; }
   button { -webkit-appearance: none; appearance: none; }
 }
 
@@ -542,7 +543,6 @@ return (
         <div style={{ display: "flex", gap: 16, marginTop: 8, flexWrap: "wrap" }}>
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textSec, cursor: "pointer" }}>
             <input type="checkbox" checked={i.age65} onChange={e => u("age65")(e.target.checked)} style={{ accentColor: C.navy, width: 14, height: 14, flexShrink: 0 }} /> Taxpayer age 65+
-            <input type="checkbox" style={{ width: 20 }} />
           </label>
           {i.filingStatus === "MFJ" && (
             <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textSec, cursor: "pointer" }}>
