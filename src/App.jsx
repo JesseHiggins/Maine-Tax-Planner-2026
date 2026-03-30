@@ -475,6 +475,8 @@ const tabs = [
   { id: "compare", label: "Take Home / Compare" },
 ];
 
+const tds = { padding: "10px 20px", fontSize: 13, borderBottom: `1px solid ${C.borderLight}`, color: C.textSec };
+const tdr = { ...tds, textAlign: "right", fontFamily: mono, fontWeight: 500, color: C.text };
 const thr = { ...tds, fontWeight: 700, color: C.navy, textAlign: "right", fontFamily: mono };
 
 return (
