@@ -468,11 +468,13 @@ const r = hasInc ? calc(i) : null;
 const blank = { filingStatus:"MFJ",payType:"hourly",hourlyRate:0,hoursPerWeek:40,otHours:0,salary:0,numKidsUnder17:0,numKidsUnder6:0,age65:false,spouseAge65:false,numKidsUnder13:0,childcareExpenses:0,annualTips:0,spouseIncome:0,spouseTrad401kPct:0,spouseRetire:0,otherIncome:0,housingType:"rent",monthlyHousing:0,rentIncHeat:true,annualPropTax:0,monthlyExpenses:0,slInterest:0,slPayments:0,trad401kPct:0,roth401kPct:0,hsaEligible:false,hsaTier:"self",hsaContrib:0,healthPremium:0,weeklyAfterTax:0,pfmlWeeks:0 };
 
 const tabs = [
-{ id: "about", label: "About" },
-{ id: "input", label: "Inputs" },
-{ id: "results", label: "Overview" },
-{ id: "breakdown", label: "Detail" },
+  { id: "about", label: "About" },
+  { id: "input", label: "Inputs" },
+  { id: "results", label: "Overview" },
+  { id: "breakdown", label: "Detail" },
   { id: "compare", label: "Take Home / Compare" },
+];
+
 const thr = { ...tds, fontWeight: 700, color: C.navy, textAlign: "right", fontFamily: mono };
 
 return (
@@ -972,7 +974,6 @@ return (
         // Single scenario or comparison mode
         const single = scenA && !scenB;
         const a = scenA?.results, b = scenB?.results, ai = scenA?.inputs, bi = scenB?.inputs;
-        const a = scenA.results, b = scenB.results, ai = scenA.inputs, bi = scenB.inputs;
         const delta = (va, vb) => { const d = vb - va; return d === 0 ? "--" : (d > 0 ? "+" : "") + f$(Math.round(d)); };
         const dColor = (va, vb, invert) => { const d = vb - va; if (d === 0) return C.textMuted; return (invert ? d < 0 : d > 0) ? C.green : C.red; };
         const scenLabel = (inp) => {
